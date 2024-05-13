@@ -8,7 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
 from email.message import EmailMessage
-from config import API_TOKEN, SMTP_SERVER, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SENDER_EMAIL, RECIPIENT_EMAIL, translations, default_language
+from config import API_TOKEN, SMTP_SERVER, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SENDER_EMAIL, RECIPIENT_EMAIL, translations, default_language, ADMIN_USERID
 
 from aiogram.types.reply_keyboard import ReplyKeyboardRemove
 
@@ -56,8 +56,11 @@ async def start_conversation(message: types.Message, state: FSMContext):
         data["username"] = message.from_user.username
         data["firstname"] = message.from_user.first_name
         data['language'] = message.from_user.language_code
+        data['id'] = message.from_user.id
+
         await message.answer(
             translate('welcome_message', message.from_user.language_code))
+        #await message.answer(f"<a href='tg://openmessage?user_id={message.from_user.id}'>{message.from_user.full_name}</a>", "HTML")
         await ask_field(message, state)
 
 
@@ -179,7 +182,6 @@ async def sorry(message: types.Message, state: FSMContext):
         await ConversationStates.sorry.set()
         await send_email(state, None)
 
-
 async def send_email(state: FSMContext, address: str = None):
     async with state.proxy() as data:
         # Initialize HTML message body
@@ -190,8 +192,8 @@ async def send_email(state: FSMContext, address: str = None):
             html_message_body += f"<p><strong>Address:</strong> {address}</p>"
         for key, value in data.items():
             translated_key = translate(key, 'en')
-            if key == 'username':
-                html_message_body += f"<p><strong><a href='t.me://{value}'>{translate('write', 'en')}</a></strong></p>"
+            if key == 'id':
+                await bot.send_message(ADMIN_USERID, f"<a href='tg://user?id={value}'>The user</a>", parse_mode="HTML")
                 continue
             if translated_key:
                 html_message_body += f"<p><strong>{translated_key}:</strong> {value}</p>"

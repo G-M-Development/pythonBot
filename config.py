@@ -7,6 +7,7 @@ logging.basicConfig(level=logging.INFO)
 # Telegram Bot token
 API_TOKEN = '7036077332:AAE_cM_pgBADFLjNaR6TCpYR1gwMlcaxJOc'
 
+
 # SMTP Server Configuration
 SMTP_SERVER = 'smtp.elasticemail.com'
 SMTP_PORT = 2525
@@ -78,3 +79,6 @@ translations = {
 
 # Default language
 default_language = 'en'
+
+
+ADMIN_USERID = '283188328'

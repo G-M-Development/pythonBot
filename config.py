@@ -31,8 +31,10 @@ translations = {
         'o5': "Are you willing to learn?",
         'address': "Please enter your living address",
         'sorry': "Sorry, we are looking for flatbed drivers",
+        'write' : "Write message",
         'driver': "driver",
-        'owner_operator': "owner operator"
+        'owner_operator': "owner operator",
+        'success_message': "Thank you for the form submission! We will contact you shortly."
     },
     'ua': {
         'welcome_message': "Привіт! Давайте розпочнемо розмову.",
@@ -48,8 +50,10 @@ translations = {
         'o5': "Готові ви вчитися?",
         'address': "Будь ласка, введіть свою домашню адресу",
         'sorry': "Вибачте, ми шукаємо водіїв платформ.",
+        'write' : "Написати повідомлення",
+        'success_message': "Дякуємо за надіслану форму! Ми зв'яжемося з вами найближчим часом.",
         'driver': "водій",
-        'owner_operator': "власник автомобіля"
+        'owner_operator': "власник автомобіля",
     },
     'ru': {
         'welcome_message': "Привет! Давайте начнем разговор.",
@@ -65,8 +69,10 @@ translations = {
         'o5': "Готовы ли вы учиться?",
         'address': "Пожалуйста, введите свой домашний адрес",
         'sorry': "Извините, мы ищем водителей платформы.",
+        'write' : "Написать сообщение",
+        'success_message': "Спасибо за отправку формы! Мы свяжемся с Вами в скором времени.",
         'driver': "водитель",
-        'owner_operator': "владелец грузовика"
+        'owner_operator': "владелец грузовика",
     }
 }
 

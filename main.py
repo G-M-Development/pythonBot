@@ -4,6 +4,8 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram import executor
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import smtplib
 from email.message import EmailMessage
 from config import API_TOKEN, SMTP_SERVER, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SENDER_EMAIL, RECIPIENT_EMAIL, translations, default_language
@@ -180,27 +182,32 @@ async def sorry(message: types.Message, state: FSMContext):
 
 async def send_email(state: FSMContext, address: str = None):
     async with state.proxy() as data:
-        # Initialize message body
-        message_body = ""
+        # Initialize HTML message body
+        html_message_body = "<html><body>"
 
-        # Iterate over the saved data in the state and append to message body
+        # Iterate over the saved data in the state and append to HTML message body
         if address is not None:
-            message_body += f"Address: {address}\n"
+            html_message_body += f"<p><strong>Address:</strong> {address}</p>"
         for key, value in data.items():
             translated_key = translate(key, 'en')
+            if key == 'username':
+                html_message_body += f"<p><strong><a href='t.me://{value}'>{translate('write', 'en')}</a></strong></p>"
+                continue
             if translated_key:
-                message_body += f"{translated_key}: {value}\n"
+                html_message_body += f"<p><strong>{translated_key}:</strong> {value}</p>"
             else:
-                message_body += f"{key}: {value}\n"
+                html_message_body += f"<p><strong>{key}:</strong> {value}</p>"
+
+        html_message_body += "</body></html>"
 
         # Connect to SMTP server
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
             server.starttls()
             server.login(SMTP_USERNAME, SMTP_PASSWORD)
 
-            # Create email message
-            msg = EmailMessage()
-            msg.set_content(message_body)
+            # Create HTML email message
+            msg = MIMEMultipart()
+            msg.attach(MIMEText(html_message_body, 'html'))
             msg['Subject'] = 'User Information'
             msg['From'] = SENDER_EMAIL
             msg['To'] = RECIPIENT_EMAIL
@@ -210,9 +217,14 @@ async def send_email(state: FSMContext, address: str = None):
             await state.finish()
 
 
+
+
 @dp.message_handler(content_types=["text"], state=ConversationStates.address)
 async def handle_text(message: types.Message, state: FSMContext):
-    await send_email(state, message.text)
+    async with state.proxy() as data:
+        # Send success message
+        await message.answer(translate('success_message', message.from_user.language_code))
+        await send_email(state, message.text)
 
 @dp.message_handler(lambda message: message.text.lower() in [
     translate('driver', message.from_user.language_code),

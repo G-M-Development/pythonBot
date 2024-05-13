@@ -1,4 +1,4 @@
-name: Deploy Docker
+name: Deploy to Production
 
 on:
   push:
@@ -13,9 +13,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+      - name: Set execute permission on script
+        run: chmod +x oncommit.sh
 
-      - name: Build and deploy
-        run: |
-          ./oncommit.sh
+      - name: Execute deployment script
+        run: bash ./oncommit.sh

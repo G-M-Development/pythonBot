@@ -1,6 +1,8 @@
 # Use an official Python runtime as a parent image
 FROM python:3.12
 
+RUN ["chmod", "+x", "/usr/src/app/docker-entrypoint.sh"]
+
 # Set the working directory in the container
 WORKDIR /usr/src/app
 

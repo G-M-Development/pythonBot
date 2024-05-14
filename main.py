@@ -182,24 +182,30 @@ async def sorry(message: types.Message, state: FSMContext):
         await ConversationStates.sorry.set()
         await send_email(state, None)
 
-async def send_email(state: FSMContext, address: str = None):
+async def send_email(state: FSMContext, number: str = None):
     async with state.proxy() as data:
         # Initialize HTML message body
         html_message_body = "<html><body>"
+        mes_body = "\n"
 
         # Iterate over the saved data in the state and append to HTML message body
-        if address is not None:
-            html_message_body += f"<p><strong>Address:</strong> {address}</p>"
+        if number is not None:
+            mes_body += f"Phone number: {number}\n"
+            html_message_body += f"<p><strong>Phone number:</strong> {number}</p>"
         for key, value in data.items():
             translated_key = translate(key, 'en')
             if key == 'id':
-                await bot.send_message(ADMIN_USERID, f"<a href='tg://user?id={value}'>{data['name']}</a>", parse_mode="HTML")
                 continue
             if translated_key:
+                mes_body += f"{translated_key}: {value} \n"
                 html_message_body += f"<p><strong>{translated_key}:</strong> {value}</p>"
             else:
-                html_message_body += f"<p><strong>{key}:</strong> {value}</p>"
+                mes_body += f"{key}: {value}"
+                html_message_body += f"<p><strong>{key}:</strong> {value}</p>\n"
 
+
+        
+        await bot.send_message(ADMIN_USERID, mes_body + f"<a href='tg://user?id={data['id']}'>{data['name']}</a>", parse_mode="HTML")
         html_message_body += "</body></html>"
 
         # Connect to SMTP server

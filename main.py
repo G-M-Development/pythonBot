@@ -1,4 +1,5 @@
 import logging
+import re
 from aiogram import Bot, Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -31,6 +32,8 @@ class ConversationStates(StatesGroup):
     d2 = State()
     d3 = State()
     address = State()
+    name = State()
+    phone = State()
     sorry = State()
 
 
@@ -68,12 +71,9 @@ async def ask_field(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(
-            create_button(
-                translate('owner_operator', message.from_user.language_code)),
-            create_button(translate('driver',
-                                    message.from_user.language_code)))
-        await message.answer(translate('field_question',
-                                       message.from_user.language_code),
+            create_button(translate('owner_operator', message.from_user.language_code)),
+            create_button(translate('driver', message.from_user.language_code)))
+        await message.answer(translate('field_question', message.from_user.language_code),
                              reply_markup=markup)
         await ConversationStates.field.set()
 
@@ -167,7 +167,7 @@ async def o5(message: types.Message, state: FSMContext):
 
 async def address(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        await message.answer(translate('address',
+        await message.answer(translate('Address',
                                        message.from_user.language_code),
                              reply_markup=ReplyKeyboardRemove())
         await ConversationStates.address.set()
@@ -193,7 +193,7 @@ async def send_email(state: FSMContext, address: str = None):
         for key, value in data.items():
             translated_key = translate(key, 'en')
             if key == 'id':
-                await bot.send_message(ADMIN_USERID, f"<a href='tg://user?id={value}'>The user</a>", parse_mode="HTML")
+                await bot.send_message(ADMIN_USERID, f"<a href='tg://user?id={value}'>{data['name']}</a>", parse_mode="HTML")
                 continue
             if translated_key:
                 html_message_body += f"<p><strong>{translated_key}:</strong> {value}</p>"
@@ -218,26 +218,48 @@ async def send_email(state: FSMContext, address: str = None):
             server.send_message(msg)
             await state.finish()
 
-
-
-
 @dp.message_handler(content_types=["text"], state=ConversationStates.address)
-async def handle_text(message: types.Message, state: FSMContext):
+async def handle_address(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         # Send success message
-        await message.answer(translate('success_message', message.from_user.language_code))
-        await send_email(state, message.text)
+        #await message.answer(translate('success_message', message.from_user.language_code))
+        data['Address'] = message.text
+        
+        await message.answer(translate('name', message.from_user.language_code))
+        await ConversationStates.name.set()
+        #await send_email(state, message.text)
 
-@dp.message_handler(lambda message: message.text.lower() in [
+@dp.message_handler(content_types=["text"], state=ConversationStates.name)
+async def handle_name(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        # Send success message
+        data['name'] = message.text
+        await message.answer(translate('phone', message.from_user.language_code))
+        await ConversationStates.phone.set()
+        #await send_email(state, message.text)
+
+pattern = r'^(\+?1)?[\s.-]?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}$'
+
+@dp.message_handler(content_types=["text"], state=ConversationStates.phone)
+async def handle_phone(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        # Send success message
+        if re.match(pattern, message.text):
+            data['phone'] = message.text
+            await message.answer(translate('success_message', message.from_user.language_code))
+            await send_email(state, message.text)
+        else:
+            await message.answer(translate('phone_error', message.from_user.language_code))
+
+
+@dp.message_handler(lambda message: message.text in [
     translate('driver', message.from_user.language_code),
     translate('owner_operator', message.from_user.language_code), "✅", "❌"
-],
-                    state="*")
+], state="*")
 async def process_response(message: types.Message, state: FSMContext):
     if (await state.get_state()) == ConversationStates.field.state:
-        await state.update_data(field=message.text.lower())
-        if message.text.lower() == translate('driver',
-                                             message.from_user.language_code):
+        await state.update_data(field=message.text)
+        if message.text == translate('driver', message.from_user.language_code):
             await d1(message, state)
         else:
             await o1(message, state)

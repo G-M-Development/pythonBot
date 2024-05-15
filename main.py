@@ -176,11 +176,10 @@ async def address(message: types.Message, state: FSMContext):
 async def sorry(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        await message.answer(translate('sorry',
-                                       message.from_user.language_code),
-                             reply_markup=markup)
+        await message.answer(translate('sorry', message.from_user.language_code)
+                             , reply_markup=ReplyKeyboardRemove())
         await ConversationStates.sorry.set()
-        await send_email(state, None)
+        await state.finish()
 
 async def send_email(state: FSMContext, number: str = None):
     async with state.proxy() as data:

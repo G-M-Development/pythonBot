@@ -42,7 +42,7 @@ def create_button(text):
 
 
 def translate(text, lang):
-    user_language = lang if lang in ['ua', 'ru'] else 'en'
+    user_language = lang if lang in ['uk', 'ru'] else 'en'
     if user_language in translations and text in translations[user_language]:
         return translations[user_language][text]
     elif default_language in translations and text in translations[
@@ -168,16 +168,17 @@ async def o5(message: types.Message, state: FSMContext):
 async def address(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         await message.answer(translate('Address',
-                                       message.from_user.language_code),
-                             reply_markup=ReplyKeyboardRemove())
+                                        message.from_user.language_code),
+                                        reply_markup=ReplyKeyboardRemove())
         await ConversationStates.address.set()
 
 
 async def sorry(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        await message.answer(translate('sorry', message.from_user.language_code)
-                             , reply_markup=ReplyKeyboardRemove())
+        await message.answer(translate('sorry', 
+                                       message.from_user.language_code),
+                                       reply_markup=ReplyKeyboardRemove())
         await ConversationStates.sorry.set()
         await state.finish()
 

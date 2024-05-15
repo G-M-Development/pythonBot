@@ -40,7 +40,7 @@ translations = {
         'owner_operator': "OWNER OPERATOR",
         'success_message': "Thank you for the form submission! We will contact you shortly."
     },
-    'ua': {
+    'uk': {
         'welcome_message': "Привіт! Давайте розпочнемо розмову.",
         'field_question': "Ви шукаєте роботу водієм-власником або водієм?",
         'd1': "Чи маєте ви більше 2 років досвіду?",

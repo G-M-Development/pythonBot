@@ -252,6 +252,7 @@ async def handle_phone(message: types.Message, state: FSMContext):
         # Send success message
         if re.match(pattern, message.text):
             data['phone'] = message.text
+            state.finish()
             await message.answer(translate('success_message', message.from_user.language_code))
             await send_email(state, message.text)
         else:

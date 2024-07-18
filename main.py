@@ -252,69 +252,91 @@ async def handle_phone(message: types.Message, state: FSMContext):
         # Send success message
         if re.match(pattern, message.text):
             data['phone'] = message.text
-            state.finish()
             await message.answer(translate('success_message', message.from_user.language_code))
             await send_email(state, message.text)
+            await state.finish()
         else:
             await message.answer(translate('phone_error', message.from_user.language_code))
 
 
-@dp.message_handler(lambda message: message.text in [
-    translate('driver', message.from_user.language_code),
-    translate('owner_operator', message.from_user.language_code), "✅", "❌"
-], state="*")
+def is_valid_response(text):
+    return text in ["✅", "❌"]
+
+@dp.message_handler(state="*")
 async def process_response(message: types.Message, state: FSMContext):
-    if (await state.get_state()) == ConversationStates.field.state:
+    current_state = await state.get_state()
+    
+    async with state.proxy() as data:
+        user_lang = data.get('language', 'en')
+    
+    if current_state == ConversationStates.field.state:
+        if message.text not in [translate('driver', user_lang), translate('owner_operator', user_lang)]:
+            await message.answer(translate('wrongans', user_lang))  # Prompt to use buttons
+            return
         await state.update_data(field=message.text)
-        if message.text == translate('driver', message.from_user.language_code):
+        if message.text == translate('driver', user_lang):
             await d1(message, state)
         else:
             await o1(message, state)
-    elif (await state.get_state()) == ConversationStates.o1.state:
-        await state.update_data(od=message.text.lower())
-        if message.text.lower() == "✅":
-            await o2(message, state)
-        else:
-            await od(message, state)
-    elif (await state.get_state()) == ConversationStates.o2.state:
-        await state.update_data(o2=message.text.lower())
-        await o3(message, state)
-    elif (await state.get_state()) == ConversationStates.o3.state:
-        await state.update_data(o3=message.text.lower())
-        await o4(message, state)
-    elif (await state.get_state()) == ConversationStates.o4.state:
-        await state.update_data(o4=message.text.lower())
-        if message.text.lower() == "✅":
-            await address(message, state)
-        else:
-            await o5(message, state)
-    elif (await state.get_state()) == ConversationStates.o5.state:
-        await state.update_data(o5=message.text.lower())
-        if message.text.lower() == "✅":
-            await address(message, state)
-        else:
-            await sorry(message, state)
-    elif (await state.get_state()) == ConversationStates.od.state:
-        await state.update_data(od=message.text.lower())
-        if message.text.lower() == "✅":
-            await d1(message, state)
-        else:
-            await sorry(message, state)
-    elif (await state.get_state()) == ConversationStates.d1.state:
-        await state.update_data(d1=message.text.lower())
-        await d2(message, state)
-    elif (await state.get_state()) == ConversationStates.d2.state:
-        await state.update_data(d2=message.text.lower())
-        if message.text.lower() == "✅":
-            await address(message, state)
-        else:
-            await d3(message, state)
-    elif (await state.get_state()) == ConversationStates.d3.state:
-        await state.update_data(d3=message.text.lower())
-        if message.text.lower() == "✅":
-            await address(message, state)
-        else:
-            await sorry(message, state)
+    
+    elif current_state in [ConversationStates.o1.state, ConversationStates.o2.state, ConversationStates.o3.state, ConversationStates.o4.state, ConversationStates.o5.state, ConversationStates.od.state, ConversationStates.d1.state, ConversationStates.d2.state, ConversationStates.d3.state]:
+        if not is_valid_response(message.text):
+            await message.answer(translate('wrongans', user_lang))  # Prompt to use buttons
+            return
+        
+        if current_state == ConversationStates.o1.state:
+            await state.update_data(od=message.text.lower())
+            if message.text == "✅":
+                await o2(message, state)
+            else:
+                await od(message, state)
+
+        elif current_state == ConversationStates.o2.state:
+            await state.update_data(o2=message.text.lower())
+            await o3(message, state)
+
+        elif current_state == ConversationStates.o3.state:
+            await state.update_data(o3=message.text.lower())
+            await o4(message, state)
+
+        elif current_state == ConversationStates.o4.state:
+            await state.update_data(o4=message.text.lower())
+            if message.text == "✅":
+                await address(message, state)
+            else:
+                await o5(message, state)
+
+        elif current_state == ConversationStates.o5.state:
+            await state.update_data(o5=message.text.lower())
+            if message.text == "✅":
+                await address(message, state)
+            else:
+                await sorry(message, state)
+
+        elif current_state == ConversationStates.od.state:
+            await state.update_data(od=message.text.lower())
+            if message.text == "✅":
+                await d1(message, state)
+            else:
+                await sorry(message, state)
+
+        elif current_state == ConversationStates.d1.state:
+            await state.update_data(d1=message.text.lower())
+            await d2(message, state)
+
+        elif current_state == ConversationStates.d2.state:
+            await state.update_data(d2=message.text.lower())
+            if message.text == "✅":
+                await address(message, state)
+            else:
+                await d3(message, state)
+
+        elif current_state == ConversationStates.d3.state:
+            await state.update_data(d3=message.text.lower())
+            if message.text == "✅":
+                await address(message, state)
+            else:
+                await sorry(message, state)
 
 # Start the bot
 if __name__ == '__main__':

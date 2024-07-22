@@ -271,7 +271,7 @@ async def process_response(message: types.Message, state: FSMContext):
     
     if current_state == ConversationStates.field.state:
         if message.text not in [translate('driver', user_lang), translate('owner_operator', user_lang)]:
-            await message.answer(translate('wrongans', user_lang))  # Prompt to use buttons
+            await message.answer(translate('wrongfield', user_lang))  # Prompt to use buttons
             return
         await state.update_data(field=message.text)
         if message.text == translate('driver', user_lang):

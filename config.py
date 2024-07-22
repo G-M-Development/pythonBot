@@ -39,7 +39,8 @@ translations = {
         'driver': "DRIVER",
         'owner_operator': "OWNER OPERATOR",
         'success_message': "Thank you for the form submission! We will contact you shortly.",
-        'wrongans' : "Please answer with the buttons ✅ or ❌."
+        'wrongans' : "Please answer with the buttons ✅ or ❌.",
+        'wrongfield' : "Please answer with the buttons DRIVER or OWNER OPERATOR."
     },
     'uk': {
         'welcome_message': "Привіт! Давайте розпочнемо розмову.",
@@ -62,7 +63,8 @@ translations = {
         'success_message': "Дякуємо за надіслану форму! Ми зв'яжемося з вами найближчим часом.",
         'driver': "ВОДІЙ",
         'owner_operator': "ВЛАСНИК АВТОМОБІЛЯ",
-        'wrongans' : "Будь ласка, використовуйте кнопки ✅ або ❌."
+        'wrongans' : "Будь ласка, використовуйте кнопки ✅ або ❌.",
+        'wrongfield' : "Будь ласка, використовуйте кнопки ВОДІЙ або ВЛАСНИК АВТОМОБІЛЯ."
     },
     'ru': {
         'welcome_message': "Привет! Давайте начнем разговор.",
@@ -85,7 +87,8 @@ translations = {
         'success_message': "Спасибо за отправку формы! Мы свяжемся с Вами в скором времени.",
         'driver': "ВОДИТЕЛЬ",
         'owner_operator': "ВЛАДЕЛЕЦ ГРУЗОВИКА",
-        'wrongans' : "Пожалуйста, используйте кнопки ✅ или ❌."
+        'wrongans' : "Пожалуйста, используйте кнопки ✅ или ❌.",
+        'wrongfield' : "Пожалуйста, используйте кнопки ВОДИТЕЛЬ или ВЛАДЕЛЕЦ ГРУЗОВИКА."
     }
 }
 
